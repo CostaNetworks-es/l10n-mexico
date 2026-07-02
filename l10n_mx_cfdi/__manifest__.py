@@ -6,8 +6,8 @@
     "website": "https://github.com/OCA/l10n-mexico",
     "license": "LGPL-3",
     "category": "Accounting",
-    "version": "17.0.1.0.1",
-    "depends": ["account", "l10n_mx_catalogs"],
+    "version": "17.0.1.1.0",
+    "depends": ["l10n_mx_catalogs", "product"],
     "external_dependencies": {
         "python": ["facturama"],
     },
