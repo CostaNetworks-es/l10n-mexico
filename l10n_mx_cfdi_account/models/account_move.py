@@ -431,7 +431,7 @@ class AccountMove(models.Model):
             items_data = self.gather_invoice_cfdi_items_data()
 
             receivables = refund.line_ids.filtered(
-                lambda L: L.account_id.user_type_id.type == "receivable"
+                lambda L: L.account_id.account_type == "asset_receivable"
             )
             partial_reconcile = self.env["account.partial.reconcile"].search(
                 [("debit_move_id", "in", receivables.ids)]
@@ -533,17 +533,6 @@ class AccountMove(models.Model):
 
             cfdi_data["Receiver"]["TaxZipCode"] = self.issuer_id.zip
             cfdi_data["Receiver"]["FiscalRegime"] = "616"
-
-    @api.returns("self", lambda value: value.id)
-    def copy(self, default=None):
-        # avoid copying the related cfdis
-        default = (default or {}).update(
-            {
-                "related_cert_ids": [(6, 0, [])],
-            }
-        )
-
-        return super().copy(default)
 
     def _get_name_invoice_report(self):
         self.ensure_one()
