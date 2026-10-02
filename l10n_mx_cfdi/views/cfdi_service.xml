@@ -1,5 +1,4 @@
 <odoo>
-
     <record id="action_l10n_mx_cfdi_service_form" model="ir.ui.view">
         <field name="name">Configuración del Servicio CFDI</field>
         <field name="model">l10n_mx_cfdi.cfdi_service</field>
@@ -25,13 +24,13 @@
                     </group>
                     <group>
                         <field name="topup_ids">
-                            <tree editable="top" delete="false" edit="false">
+                            <list editable="top" delete="false" edit="false">
                                 <field name="topup_date" />
                                 <field name="stamp_number" />
                                 <field name="stamp_price" />
                                 <field name="total" />
                                 <field name="partner_id" />
-                            </tree>
+                            </list>
                         </field>
                     </group>
                 </sheet>
@@ -43,7 +42,7 @@
     <record id="action_l10n_mx_cfdi_settings" model="ir.actions.act_window">
         <field name="name">Configuración de Servicio</field>
         <field name="res_model">l10n_mx_cfdi.cfdi_service</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem
@@ -53,5 +52,4 @@
         groups="base.group_user"
         action="action_l10n_mx_cfdi_settings"
     />
-
 </odoo>
