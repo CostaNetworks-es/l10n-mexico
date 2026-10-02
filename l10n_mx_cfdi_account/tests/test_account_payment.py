@@ -6,7 +6,6 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
-CREATE_CFDI = "odoo.addons.l10n_mx_cfdi.models.cfdi_service.CFDIService.create_cfdi"
 CFDI_STAMP = {
     "Status": "active",
     "Id": "tracking-id",
@@ -44,6 +43,18 @@ class TestAccountPaymentCFDI(AccountTestInvoicingCommon):
         )
         cls.partner_a.write(
             {"vat": "XEXX010101000", "zip": "77500", "tax_regime": cls.regimen.id}
+        )
+
+    def _mock_pac_stamp(self):
+        """Replace the PAC call with a successful stamp.
+
+        Patched on the registry class (the most derived one) so the mock also
+        holds when another module overrides ``create_cfdi`` without calling super.
+        """
+        return patch.object(
+            type(self.env["l10n_mx_cfdi.cfdi_service"]),
+            "create_cfdi",
+            return_value=CFDI_STAMP,
         )
 
     def _create_document(self, **extra):
@@ -164,7 +175,7 @@ class TestAccountPaymentCFDI(AccountTestInvoicingCommon):
 
     def test_reconciling_a_payment_creates_its_payment_cfdi(self):
         invoice = self._post_invoice_with_cfdi()
-        with patch(CREATE_CFDI, return_value=CFDI_STAMP) as create_cfdi:
+        with self._mock_pac_stamp() as create_cfdi:
             payment = self._register_payment(invoice)
         self.assertEqual(create_cfdi.call_count, 1)
         self.assertEqual(payment.cfdi_document_id.type, "P")
@@ -174,7 +185,7 @@ class TestAccountPaymentCFDI(AccountTestInvoicingCommon):
 
     def test_payment_cfdi_data_uses_the_payment_form_of_the_payment(self):
         invoice = self._post_invoice_with_cfdi()
-        with patch(CREATE_CFDI, return_value=CFDI_STAMP):
+        with self._mock_pac_stamp():
             payment = self._register_payment(invoice)
         data = payment.prepare_payment_cfdi()
         self.assertEqual(data["PaymentForm"], self.payment_form.code)
@@ -183,12 +194,10 @@ class TestAccountPaymentCFDI(AccountTestInvoicingCommon):
 
     def test_unreconciling_a_payment_cancels_its_payment_cfdi(self):
         invoice = self._post_invoice_with_cfdi()
-        with patch(CREATE_CFDI, return_value=CFDI_STAMP):
+        with self._mock_pac_stamp():
             payment = self._register_payment(invoice)
         cfdi = payment.cfdi_document_id
-        with patch(
-            "odoo.addons.l10n_mx_cfdi.models.cfdi_document.Document.cancel"
-        ) as cancel:
+        with patch.object(type(cfdi), "cancel") as cancel:
             invoice.line_ids.remove_move_reconcile()
         cancel.assert_called_once_with("02")
         self.assertEqual(cfdi.related_payment_id, payment)
@@ -204,7 +213,7 @@ class TestAccountPaymentCFDI(AccountTestInvoicingCommon):
         self.assertEqual(refund.move_type, "out_refund")
         self.assertTrue(refund.cfdi_required)
         # Posting a reversal reconciles it with the reversed invoice
-        with patch(CREATE_CFDI, return_value=CFDI_STAMP):
+        with self._mock_pac_stamp():
             refund.action_post()
         refund_cfdi = refund.related_cert_ids.filtered(lambda doc: doc.type == "E")
         self.assertEqual(refund_cfdi.state, "published")

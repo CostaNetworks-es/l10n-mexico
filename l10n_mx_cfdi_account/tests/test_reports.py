@@ -49,8 +49,11 @@ class TestCFDIReports(AccountTestInvoicingCommon):
             }
         )
         cls.invoice = cls.init_invoice(
-            "out_invoice", products=cls.product_a, post=True, amounts=[100.0]
+            "out_invoice", products=cls.product_a, amounts=[100.0]
         )
+        # Posted without a CFDI: the stamp is simulated by each test
+        cls.invoice.cfdi_required = False
+        cls.invoice.action_post()
 
     def _render(self, report_ref, records):
         html, _report_type = self.env["ir.actions.report"]._render_qweb_html(
