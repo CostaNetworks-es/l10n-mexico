@@ -1,12 +1,48 @@
 from datetime import datetime
 
-from odoo import _, models
+from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools import json_float_round
+from odoo.tools.float_utils import json_float_round
 
 
 class AccountPayment(models.Model):
     _inherit = "account.payment"
+
+    # In 18.0 account.payment no longer delegates (_inherits) to account.move, so
+    # the CFDI data of the payment is stored on the payment itself.
+    cfdi_document_id = fields.Many2one(
+        "l10n_mx_cfdi.document",
+        string="CFDI",
+        readonly=True,
+        copy=False,
+        compute="_compute_cfdi_document_id",
+        store=True,
+    )
+    cfdi_document_state = fields.Selection(
+        string="CFDI Status", readonly=True, related="cfdi_document_id.state"
+    )
+    related_cert_ids = fields.Many2many(
+        "l10n_mx_cfdi.document", string="Documentos", readonly=True, copy=False
+    )
+    cfdi_use_id = fields.Many2one("l10n_mx_catalogs.c_uso_cfdi", string="Uso de CFDI")
+    payment_form_id = fields.Many2one(
+        "l10n_mx_catalogs.c_forma_pago", string="Forma de pago"
+    )
+    l10n_mx_cfdi_auto = fields.Boolean(
+        string="CFDI Automatico", related="company_id.l10n_mx_cfdi_auto", readonly=True
+    )
+    l10n_mx_cfdi_enabled = fields.Boolean(
+        string="CFDI Habilitado",
+        related="company_id.l10n_mx_cfdi_enabled",
+        readonly=True,
+    )
+
+    @api.depends("related_cert_ids")
+    def _compute_cfdi_document_id(self):
+        for payment in self:
+            payment.cfdi_document_id = payment.related_cert_ids.filtered(
+                lambda x: x.type == "P" and x.state == "published"
+            )
 
     def action_generate_cfdi(self):
         self.ensure_one()
@@ -27,8 +63,8 @@ class AccountPayment(models.Model):
 
         self.ensure_one()
 
-        # assert move type is inbound payment
-        if self.move_type != "entry" or self.payment_type != "inbound":
+        # assert the payment is an inbound payment
+        if self.payment_type != "inbound":
             raise ValidationError(_("You can only create customer payments."))
 
         # check if the payment is fully reconciled
@@ -167,7 +203,7 @@ class AccountPayment(models.Model):
         payment_date = self.move_id._format_cfdi_date_str(self.date)
         payment_data = {
             "Date": payment_date,
-            "PaymentForm": self.move_id.payment_form_id.code,
+            "PaymentForm": self.payment_form_id.code,
             "Amount": json_float_round(self.amount, 2),
             "RelatedDocuments": related_documents_data,
         }

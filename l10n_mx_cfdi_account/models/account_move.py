@@ -5,7 +5,7 @@ from lxml import etree
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
-from odoo.tools import json_float_round
+from odoo.tools.float_utils import json_float_round
 
 
 class AccountMove(models.Model):
@@ -324,14 +324,14 @@ class AccountMove(models.Model):
 
             if not line.product_id.l10n_mx_cfdi_product_code_id:
                 err_msg += (
-                    "- No se ha definido el código de producto para el producto %s\n"
-                    % line.product_id.name
+                    "- No se ha definido el código de producto para el producto "
+                    f"{line.product_id.name}\n"
                 )
 
             if not line.product_id.l10n_mx_cfdi_product_measurement_unit_id:
                 err_msg += (
-                    "- No se ha definido la unidad de medida para el producto %s\n"
-                    % line.product_id.name
+                    "- No se ha definido la unidad de medida para el producto "
+                    f"{line.product_id.name}\n"
                 )
 
         return err_msg

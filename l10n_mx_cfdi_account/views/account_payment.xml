@@ -32,11 +32,10 @@
                         string="Generar CFDI"
                         class="btn btn-info btn-sm"
                         groups="account.group_account_invoice"
-                        invisible="state != 'posted' or l10n_mx_cfdi_auto == True or cfdi_document_id != False"
+                        invisible="state not in ('in_process', 'paid') or l10n_mx_cfdi_auto == True or cfdi_document_id != False"
                     />
                 </div>
             </field>
         </field>
-
     </record>
 </odoo>

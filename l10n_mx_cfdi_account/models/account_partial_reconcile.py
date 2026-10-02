@@ -15,7 +15,7 @@ class AccountPartialReconcile(models.Model):
             for move in move_line_ids.move_id:
                 if move.move_type == "entry":
                     # create payment CFDI if required
-                    payment = move.payment_id
+                    payment = move.origin_payment_id
                     payment_requires_cfdi = any(
                         invoice.cfdi_required
                         and invoice.payment_method_id.code == "PPD"
@@ -53,7 +53,7 @@ class AccountPartialReconcile(models.Model):
         if self.env.company.l10n_mx_cfdi_auto:
             for move in move_line_ids.move_id:
                 if move.move_type == "entry":
-                    payment = move.payment_id
+                    payment = move.origin_payment_id
                     related_cfdi = payment.related_cert_ids.filtered_domain(
                         [("type", "=", "P"), ("state", "=", "published")]
                     )

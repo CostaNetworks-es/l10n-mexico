@@ -74,4 +74,4 @@ class CertificateCancel(models.TransientModel):
                     invoice.button_draft()
 
             for payment in record.certificate_ids.related_payment_id:
-                payment.move_id._compute_cfdi_document_id()
+                payment._compute_cfdi_document_id()

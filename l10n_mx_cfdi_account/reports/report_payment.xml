@@ -1,5 +1,4 @@
 <odoo>
-
     <template id="report_payment_receipt_document_cfdi">
         <t t-call="web.external_layout">
             <t t-set="o" t-value="o.with_context(lang=lang)" />
@@ -13,28 +12,10 @@
                     <div
                         class="col-auto col-3 mw-100 m-0 p-0"
                         t-if="o.date"
-                        name="invoice_date"
+                        name="payment_date"
                     >
-                        <t t-if="o.move_type == 'out_invoice'">
-                            <strong>Fecha de Factura:</strong>
-                        </t>
-                        <t t-elif="o.move_type == 'out_refund'">
-                            <strong>Fecha de Nota de Crédito:</strong>
-                        </t>
-                        <t t-elif="o.move_type == 'out_receipt'">
-                            <strong>Fecha de Recibo:</strong>
-                        </t>
-                        <t t-else="">
-                            <strong>Fecha:</strong>
-                        </t>
+                        <strong>Fecha:</strong>
                         <p class="m-0" t-field="o.date" />
-                    </div>
-
-                    <div t-if="o.invoice_payment_term_id" class="col-auto col-3 mw-100">
-                        <strong>Plazo de Pago:</strong>
-                        <p name="payment_term">
-                            <span t-field="o.invoice_payment_term_id.name" />
-                        </p>
                     </div>
                     <div
                         class="col-auto col-2 mw-100 p-0"
@@ -130,5 +111,4 @@
             />
         </t>
     </template>
-
 </odoo>

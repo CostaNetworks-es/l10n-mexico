@@ -6,7 +6,7 @@
     "website": "https://github.com/OCA/l10n-mexico",
     "license": "LGPL-3",
     "category": "Accounting",
-    "version": "17.0.1.1.0",
+    "version": "18.0.1.0.0",
     "depends": ["l10n_mx_cfdi", "l10n_mx"],
     "data": [
         "security/ir.model.access.csv",
@@ -16,7 +16,6 @@
         "views/res_config_settings.xml",
         "wizards/document_cancel_form.xml",
         "wizards/create_cfdi_publico_en_general.xml",
-        "wizards/account_invoice_send_views.xml",
         "wizards/download_cfdi_files_wizard.xml",
         "reports/report_external_layouts.xml",
         "reports/report_invoice.xml",
