@@ -19,3 +19,12 @@ class TestCFDISeries(TransactionCase):
 
         # Check if the implementation is set to the provided value
         self.assertEqual(series.implementation, "standard")
+
+    def test_create_batch_sets_implementation_on_each_record(self):
+        series = self.env["l10n_mx_cfdi.series"].create(
+            [
+                {"name": "Series A", "code": "A"},
+                {"name": "Series B", "code": "B", "implementation": "standard"},
+            ]
+        )
+        self.assertEqual(series.mapped("implementation"), ["no_gap", "standard"])
